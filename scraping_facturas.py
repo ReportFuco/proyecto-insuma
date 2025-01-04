@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from datetime import datetime
+import streamlit as st
 from config import *
 import pandas as pd
 import os
@@ -77,8 +78,6 @@ class ExtraccionInsuma:
         for serie in ["TOTAL", "NETO", "FOLIO"]:
             df[serie] = df[serie].astype(int)
 
-        self.driver.quit()
-
         return df
 
     def main(self):
@@ -88,9 +87,10 @@ class ExtraccionInsuma:
         self.login_obuma()
         self.sales_extractor()
         df = self.download_table()
-
         return df
-    
+
 if __name__=="__main__":
 
-    print(ExtraccionInsuma().main())
+    df = ExtraccionInsuma().main()
+    print(df)
+    df.to_excel(os.path.join("download", f'{datetime.now().strftime("%d%m%Y%H%M%S")}.xlsx'), index=False)
