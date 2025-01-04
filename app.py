@@ -1,9 +1,8 @@
-from scraping_facturas import ExtraccionInsuma
-import streamlit as st
 import scraping_facturas as sf
+import streamlit as st
 from pathlib import Path
 import locale
-import funciones as fn
+
 
 
 class InterfazObuma:
@@ -21,6 +20,10 @@ class InterfazObuma:
     """
     
     def __init__(self):
+        self.paginas = [
+            "Notas de venta", "Inicio", "Cotizaciones", 
+            "Producción", "Compras", "Mapa de ventas"
+            ]
         locale.setlocale(locale.LC_TIME, "es_ES")
         st.set_page_config(
             page_title="Gestión operaciones - Insuma",
@@ -28,6 +31,7 @@ class InterfazObuma:
             initial_sidebar_state="collapsed",
             layout="wide"
         )
+
         
     def main(self):
         """
@@ -41,9 +45,7 @@ class InterfazObuma:
         with col2:
             st.title("Control de Gestión Insuma")
 
-        tab1, tab2,tab3, tab4, tab5, tab6 = st.tabs(
-            ["Notas de venta", "Inicio", "Cotizaciones", "Producción", "Compras", "Mapa de ventas"]
-            )
+        tab1, tab2,tab3, tab4, tab5, tab6 = st.tabs(self.paginas)
         
         with tab6:
             st.header("Inicio loco aca está el Inicio de la app")
@@ -52,7 +54,7 @@ class InterfazObuma:
         
         with tab1:
             with st.spinner("Espera que se descargue la información"):
-                df_notas = ExtraccionInsuma().main()
+                df_notas = sf.ExtraccionInsuma().main()
                 # lo que falta acá revisar en el proyecto de streamlit "Dashboard CDE"
             st.dataframe(df_notas)
 
