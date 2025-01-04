@@ -34,9 +34,7 @@ class InterfazObuma:
 
         
     def main(self):
-        """
-        Código fuente de la pág.
-        """
+
         col1, col2 = st.columns([1,6])
         with col1:
             st.image(
@@ -47,6 +45,8 @@ class InterfazObuma:
 
         tab1, tab2,tab3, tab4, tab5, tab6 = st.tabs(self.paginas)
         
+
+        # Código principal
         with tab6:
             st.header("Inicio loco aca está el Inicio de la app")
         with tab2:
@@ -55,8 +55,32 @@ class InterfazObuma:
         with tab1:
             with st.spinner("Espera que se descargue la información"):
                 df_notas = sf.ExtraccionInsuma().main()
-                # lo que falta acá revisar en el proyecto de streamlit "Dashboard CDE"
-            st.dataframe(df_notas)
+            
+            col1, col2, col3, col4, col5 = st.columns(5)
+            with col1:
+                filtro_fecha = st.selectbox("Fecha", ["Todas"] + df_notas["FECHA"].unique().tolist())
+            with col2:
+                filtro_vendedor = st.selectbox("Vendedor", ["Todos"] + df_notas["VENDEDOR"].unique().tolist())
+            with col3:
+                filtro_cliente = st.selectbox("Cliente", ["Todos"] + df_notas["CLIENTE RS"].unique().tolist())
+            with col4:
+                filtro_sucursal = st.selectbox("Sucursal", ["Todos"] + df_notas["SUCURSAL"].unique().tolist())
+            with col5:
+                filtro_estado = st.selectbox("Estado", ["Todas"] + df_notas["ESTADO"].unique().tolist())
+
+            df_filtrado = df_notas.copy()
+
+            if filtro_fecha != "Todas":
+                df_filtrado = df_filtrado[df_filtrado["FECHA"] == filtro_fecha]
+            if filtro_vendedor != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["VENDEDOR"] == filtro_vendedor]
+            if filtro_cliente != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["CLIENTE RS"] == filtro_cliente]
+            if filtro_sucursal != "Todos":
+                df_filtrado = df_filtrado[df_filtrado["SUCRUSAL"] == filtro_sucursal]
+            if filtro_estado != "Todas":
+                df_filtrado = df_filtrado[df_filtrado["ESTADO"] == filtro_estado]
+            st.dataframe(df_filtrado)
 
 if __name__=="__main__":
     InterfazObuma().main()
