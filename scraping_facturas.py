@@ -4,19 +4,39 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from datetime import datetime
+from config import *
 import pandas as pd
+import os
 import json
 
 
 class ExtraccionInsuma:
+    """
+    # SCRAPING WEB OBUMA
+    
+    Extractor de información de la página obuma a través de la librería "Selenium".
 
+    ## Principales objetivos:
+    
+        - Extraer la información de las notas de ventas emitidas por la empresa.
+        - Análisis de las ventas realizadas pro cliente.
+    
+    ## Objetivos mas adelante con el código:
+
+        - extraer otras áreas de la empresa (Logística, Comrpas, Requerimientos entre otros).
+
+    """
     def __init__(self) -> None:
         self.driver = webdriver.Chrome(options=self.config_driver())
+        self.username, self.password = self._get_credencials()
 
     def _get_credencials(self):
-        
-        with open(r"credencials\obuma.json") as file:
-            return json.load(file)
+        """
+        Método para extraer las credenciales de Obuma.
+        """
+        with open(os.path.join("secrets", "secrets.json")) as file:
+            credencials = json.load(file)
+            return credencials["user"], credencials["password"]
 
     def config_driver(self):
         chrome_options = Options()
@@ -26,9 +46,9 @@ class ExtraccionInsuma:
         return chrome_options
 
     def login_obuma(self):
-        self.driver.get("https://app.obuma.cl/obuma2.0/")
-        self.driver.find_element(By.ID, "idLogin").send_keys(self._get_credencials()["user"])
-        self.driver.find_element(By.ID, "idPassword").send_keys(self._get_credencials()["password"])
+        self.driver.get(URL_INSUMA)
+        self.driver.find_element(By.ID, "idLogin").send_keys(self.username)
+        self.driver.find_element(By.ID, "idPassword").send_keys(self.password)
         self.driver.find_element(By.CLASS_NAME, "btn-yellow").click()
 
     def sales_extractor(self):
@@ -61,11 +81,16 @@ class ExtraccionInsuma:
 
         return df
 
+    def main(self):
+        """
+        Función principal para la extracción de las ventas de Insuma.
+        """
+        self.login_obuma()
+        self.sales_extractor()
+        df = self.download_table()
 
-def extraccion_obuma():
+        return df
+    
+if __name__=="__main__":
 
-    driver = ExtraccionInsuma()
-    driver.login_obuma()
-    driver.sales_extractor()
-    return driver.download_table()
-
+    print(ExtraccionInsuma().main())
