@@ -39,34 +39,30 @@ class InterfazObuma:
     @st.cache_data(show_spinner=False, ttl=60*5)
     def dataframe_ventas(_self):
         return sf.ExtraccionInsuma().main()
-
+    
     def filtros(self, df):
         """
-        función para filtrar el dataframe de ventas.
+        Función para filtrar el dataframe de ventas.
         """
-        col1, col2, col3, col4, col5 = st.columns(5)
-        with col1:
-            filtro_fecha = st.selectbox("Fecha", ["Todas"] + df["FECHA"].unique().tolist())
-        with col2:
-            filtro_vendedor = st.selectbox("Vendedor", ["Todos"] + df["VENDEDOR"].unique().tolist())
-        with col3:
-            filtro_cliente = st.selectbox("Cliente", ["Todos"] + df["CLIENTE RS"].unique().tolist())
-        with col4:
-            filtro_sucursal = st.selectbox("Sucursal", ["Todos"] + df["SUCURSAL"].unique().tolist())
-        with col5:
-            filtro_estado = st.selectbox("Estado", ["Todas"] + df["ESTADO"].unique().tolist())
-        df_filtrado = df.copy()
-        if filtro_fecha != "Todas":
-            df_filtrado = df_filtrado[df_filtrado["FECHA"] == filtro_fecha]
-        if filtro_vendedor != "Todos":
-            df_filtrado = df_filtrado[df_filtrado["VENDEDOR"] == filtro_vendedor]
-        if filtro_cliente != "Todos":
-            df_filtrado = df_filtrado[df_filtrado["CLIENTE RS"] == filtro_cliente]
-        if filtro_sucursal != "Todos":
-            df_filtrado = df_filtrado[df_filtrado["SUCRUSAL"] == filtro_sucursal]
-        if filtro_estado != "Todas":
-            df_filtrado = df_filtrado[df_filtrado["ESTADO"] == filtro_estado]
-        return df_filtrado
+        filtros = {
+            "Fecha": ("FECHA", "Todas"),
+            "Vendedor": ("VENDEDOR", "Todos"),
+            "Cliente": ("CLIENTE RS", "Todos"),
+            "Sucursal": ("SUCURSAL", "Todos"),
+            "Estado": ("ESTADO", "Todas")
+        }
+
+        seleccionados = {}
+        cols = st.columns(len(filtros))
+        for col, (label, (columna, default)) in zip(cols, filtros.items()):
+            with col:
+                seleccionados[columna] = st.selectbox(label, [default] + df[columna].unique().tolist())
+
+        for columna, valor in seleccionados.items():
+            if valor not in ["Todas", "Todos"]:
+                df = df[df[columna] == valor]
+
+        return df
 
     def main(self):
         self.render_logo()
